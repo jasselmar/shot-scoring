@@ -4,6 +4,8 @@ import './App.css'
 function App() {
   const [shots, setShots] = useState([]);
   const [playerName, setPlayerName] = useState('');
+  const [shotCount, setShotCount] = useState(5);
+  const [shotCountInput, setShotCountInput] = useState('5');
   const [currentShot, setCurrentShot] = useState({
     placement: null,
     speed: null,
@@ -47,8 +49,8 @@ function App() {
       alert('Please enter a player name before submitting shots');
       return;
     }
-    if (shots.length >= 5) {
-      alert('Maximum 5 shots allowed!');
+    if (shots.length >= shotCount) {
+      alert(`Maximum ${shotCount} shots allowed!`);
       return;
     }
     if (currentShot.placement === null || currentShot.speed === null || currentShot.pretty === null) {
@@ -62,9 +64,6 @@ function App() {
   const calculateAverage = () => {
     if (shots.length === 0) return 0;
     const total = shots.reduce((sum, shot) => sum + calculateShotScore(shot), 0);
-    if (total <= 100) {
-      return 100;
-    }
     return (total / shots.length).toFixed(2);
   };
 
@@ -102,7 +101,7 @@ function App() {
     });
   };
 
-  const isComplete = shots.length >= 5;
+  const isComplete = shots.length >= shotCount;
 
   return (
     <div className="app">
@@ -110,15 +109,45 @@ function App() {
       
       {!isComplete && (
         <>
-          <div className="name-input-container">
-            <input
-              type="text"
-              value={playerName}
-              onChange={(e) => setPlayerName(e.target.value)}
-              placeholder="Enter player name"
-              disabled={shots.length > 0}
-              className="name-input"
-            />
+          <div className="input-container">
+            <div className="name-input-container">
+              <input
+                type="text"
+                value={playerName}
+                onChange={(e) => setPlayerName(e.target.value)}
+                placeholder="Enter player name"
+                disabled={shots.length > 0}
+                className="name-input"
+              />
+            </div>
+            <div className="shot-count-container">
+              <label htmlFor="shotCount">Number of Shots:</label>
+              <div className="shot-count-controls">
+                <input
+                  type="text"
+                  id="shotCount"
+                  value={shotCountInput}
+                  onChange={(e) => setShotCountInput(e.target.value)}
+                  className="name-input"
+                  placeholder="5"
+                />
+                <div className="shot-count-buttons">
+                  <button 
+                    className="update-button"
+                    onClick={() => {
+                      const num = parseInt(shotCountInput);
+                      if (!isNaN(num) && num >= 1 && num <= 50) {
+                        setShotCount(num);
+                      } else {
+                        setShotCountInput(shotCount.toString());
+                      }
+                    }}
+                  >
+                    Update
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="scoring-container">
@@ -130,9 +159,9 @@ function App() {
           <button 
             className="submit-button" 
             onClick={submitShot}
-            disabled={shots.length >= 5}
+            disabled={shots.length >= shotCount}
           >
-            Submit Shot ({shots.length}/5)
+            Submit Shot ({shots.length}/{shotCount})
           </button>
         </>
       )}
